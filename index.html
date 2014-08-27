@@ -17,6 +17,10 @@
         
           <div class="presenter">
             
+          </div>
+        
+          <div class="presenter">
+            
   
   <p>
     Henry Finucane
@@ -417,7 +421,7 @@
 
   
   <p>
-    But if you're going to do this a lot...
+    But if you're going to do this a lot- or every time, like fetch
   </p>
   
 
@@ -442,7 +446,7 @@
 
 - synchronize: src={{cf|dest}} dest=/var/tmp/cf
 
-- setup: src=/var/tmp/cf</pre></div>
+- funky_setup: src=/var/tmp/cf</pre></div>
   
 
       
@@ -452,7 +456,7 @@
   
       <article class="">
       
-        <h2>Warning: Theorizing ahead</h2>
+        <h2>Warning: Theorizing Ahead</h2>
       
       </article>
   
@@ -490,7 +494,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>API Matters</h3>
         
@@ -509,7 +513,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>API Matters</h3>
         
@@ -524,7 +528,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>API Matters</h3>
         
@@ -545,7 +549,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>API Matters</h3>
         
@@ -572,7 +576,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3></h3>
         
@@ -585,7 +589,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>Action Plugins Are Amazing</h3>
         
@@ -623,7 +627,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>Template</h3>
         
@@ -644,7 +648,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>Template</h3>
         
@@ -667,7 +671,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>Template</h3>
         
@@ -692,7 +696,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>Template</h3>
         
@@ -719,7 +723,7 @@
   
   
   
-      <article class="">
+      <article>
       
         <h3>Template</h3>
         
@@ -744,7 +748,7 @@ return res</pre></div>
   
   
   
-      <article class="">
+      <article>
       
         <h3>Hello World</h3>
         
@@ -772,7 +776,7 @@ class ActionModule(object):
   
   
   
-      <article class="">
+      <article>
       
         <h3>Hello World</h3>
         
@@ -806,7 +810,7 @@ class ActionModule(object):
   
   
   
-      <article class="">
+      <article>
       
         <h3>Hello World</h3>
         
@@ -825,7 +829,7 @@ localhost | success &gt;&gt; {
   
   
   
-      <article class="">
+      <article>
       
         <h3>action_plugins &amp; library?</h3>
         
@@ -846,7 +850,7 @@ localhost | success &gt;&gt; {
   
   
   
-      <article class="">
+      <article>
       
         <h3>action_plugins &amp; library?</h3>
         
@@ -873,7 +877,7 @@ localhost | success &gt;&gt; {
   
   
   
-      <article class="">
+      <article>
       
         <h3>Tying Action Plugins Together</h3>
         
@@ -886,7 +890,7 @@ localhost | success &gt;&gt; {
   
   
   
-      <article class="">
+      <article>
       
         <h3>Tying Action Plugins Together</h3>
         
@@ -914,7 +918,7 @@ sync_result = sync.run(conn,
   
   
   
-      <article class="">
+      <article>
       
         <h3>Inject</h3>
         
@@ -950,7 +954,7 @@ localhost | success &gt;&gt; {
   
   
   
-      <article class="">
+      <article>
       
         <h3>My favorite API signature</h3>
         
@@ -963,7 +967,7 @@ localhost | success &gt;&gt; {
   
   
   
-      <article class="">
+      <article>
       
         <h3>Logging</h3>
         
@@ -978,7 +982,7 @@ vvv('log something maybe a bit less important')</pre></div>
   
   
   
-      <article class="">
+      <article>
       
         <h3>Logging</h3>
         
@@ -999,7 +1003,7 @@ def vvvvv(msg, host=None):
   
   
   
-      <article class="">
+      <article>
       
         <h3>Diff mode</h3>
         
@@ -1042,7 +1046,7 @@ ok: [localhost]</pre></div>
   
   
   
-      <article class="">
+      <article>
       
         <h3>Connection Magic</h3>
         
@@ -1072,7 +1076,7 @@ if inject.get('delegate_to') is None:
   
   
   
-      <article class="">
+      <article>
       
         <h3>Connection Magic</h3>
         
@@ -1095,7 +1099,7 @@ $ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"<
   
   
   
-      <article class="">
+      <article>
       
         <h3>Connection Magic for SSH</h3>
         
@@ -1106,7 +1110,7 @@ $ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"<
   
 
   
-  <div class="code"><pre>- apply: /etc/iptables/iptables.v4
+  <div class="code"><pre>- apply: src=/etc/iptables/iptables.v4
 - apply_confirm:</pre></div>
   
 
@@ -1115,7 +1119,7 @@ $ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"<
   
   
   
-      <article class="">
+      <article>
       
         <h3>Connection Magic for SSH</h3>
         
@@ -1152,7 +1156,7 @@ $ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"<
   
   
   
-      <article class="">
+      <article>
       
         <h3>Connection Magic for SSH</h3>
         
@@ -1178,8 +1182,12 @@ $ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"<
   
   
 
-      <article class="">
+      <article>
         <h3>Thank you</h3>
+        
+          <div class="presenter">
+            <p class="link"><a href="http://locationlabs.github.io/ansible-action-plugins" target="_blank">http://locationlabs.github.io/ansible-action-plugins</a></p><p class="link"><a href="https://github.com/locationlabs/ansible-action-plugins" target="_blank">https://github.com/locationlabs/ansible-action-plugins</a></p>
+          </div>
         
           <div class="presenter">
             
