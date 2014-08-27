@@ -1,0 +1,456 @@
+Advanced Ansible
+Action Modules for Fun And Profit
+
+Henry Finucane
+
+* 
+
+.image actionmodules/ansible_badge.png
+
+- Chef, Puppet, Salt, competitor
+- Describe state
+- Core in Python, you work in YAML
+
+* YAML
+
+Great at lists
+
+    - apt: pkg=nginx
+
+    - file: path=/var/run/lockfile state=absent
+
+* YAML
+
+Great at lists
+
+    - apt: pkg=nginx
+
+    - file: path=/var/run/lockfile state=absent
+
+JSON for scale:
+
+    [ { "apt": "pkg=nginx" }, { "file": "/var/run/lockfile state=absent" } ]
+
+* YAML
+
+Great at *data*
+
+    nginx:
+      port: 443
+      ssl:
+        enable: True
+        certificate: /etc/nginx/ssl/hostname.cert
+
+
+* Python
+
+    if os.path.exists('/run/mysql.pid'):
+        subprocess.call(['mysqladmin', 'shutdown'])
+
+* YAML
+
+    - stat: path=/run/mysql.pid
+      register: mysql_pid
+
+    - command: mysqladmin shutdown
+      when: mysql_pid|exists
+
+* Python & YAML
+
+    if os.path.exists('/run/mysql.pid'):
+        subprocess.call(['mysqladmin', 'shutdown'])
+
+vs
+
+    - stat: path=/run/mysql.pid
+      register: mysql_pid
+
+    - command: mysqladmin shutdown
+      when: mysql_pid|exists
+
+* YAML
+
+Logic becomes awkward fast
+
+- `register:` everything
+- No visual grouping
+- Integration-testing only
+
+* YAML
+
+Logic is actually pretty inefficient
+
+    - foo: a=x b=y
+      register: foo_result
+
+    - bar: dest=z
+      when: foo_result|changed
+
+* YAML
+
+    - foo: a=x b=y
+      register: foo_result
+
+    - bar: dest=z
+      when: foo_result|changed
+
+- Ship foo to the remote host
+- Execute foo
+- Ship results back, parse, evaluate when
+- Conditionally ship bar
+- Conditionally execute bar
+
+* YAML
+
+Including a long task many times will scale poorly
+
+* YAML
+
+Including a long task many times will scale poorly
+
+Ansible is pretty fast
+
+* YAML
+
+Including a long task many times will scale poorly
+
+Ansible is pretty fast
+
+This is a terrible reason to make decisions
+
+* YAML
+
+Including a long task many times will scale poorly
+
+Ansible is pretty fast
+
+This is a terrible reason to make decisions
+
+Sometimes it has to happen
+
+* Modules
+
+* Modules Are Great
+
+* Really easy to write
+
+- A script that returns json
+- Ansible has a bunch of helper libraries
+
+* Modules can't do everything
+
+They run on the host you are deploying to
+
+You can work around this:
+
+   - fetch: http://internal_repo/bar.deb
+     local_action: True
+
+But if you're going to do this a lot...
+
+* Modules can't run on the host and the remote
+
+There's always
+
+    - complicated_fetch: http://wubwubwub/dubstep
+      register: cf
+
+    - synchronize: src={{cf|dest}} dest=/var/tmp/cf
+
+    - setup: src=/var/tmp/cf
+
+* Warning: Theorizing ahead
+
+* API Matters
+
+- DevOps is not just making sure that someone can push 'play'
+
+* API Matters
+
+- DevOps is not just making sure that someone can push 'play'
+- LL has a lot of small teams that do slightly different deployments- the nature of our work
+
+* API Matters
+
+- DevOps is not just making sure that someone can push 'play'
+- LL has a lot of small teams that do slightly different deployments- the nature of our work
+- Tooling for Ansible should be legible & native seeming
+
+* API Matters
+
+If you have a bad API, eventually, your work will get re-implemented
+
+* API Matters
+
+If you have a bad API, eventually, your work will get re-implemented
+
+It's really easy to do simple deployment things wrong
+
+* API Matters
+
+If you have a bad API, eventually, your work will get re-implemented
+
+It's really easy to do simple deployment things wrong
+
+The kind of wrong that works just fine in most circumstances
+
+* 
+
+.image actionmodules/segway.jpg
+
+* Action Plugins Are Amazing
+
+Action Plugins can do anything
+
+- Coalesce multiple modules into a single piece of API
+- Modify transport parameters
+- Change transports
+- Turn off check mode, and run modules[1]
+- Monkeypatch Ansible[2]
+
+[1]: Presumably, because you are a monster
+[2]: Honestly this is probably a bad idea
+
+* Template
+
+Have you ever wondered how it works?
+
+- Render on your machine ( no need to install Jinja2 on the remote )
+
+* Template
+
+Have you ever wondered how it works?
+
+- Render on your machine ( no need to install Jinja2 on the remote )
+- Figures out if it needs to do anything, maybe spits out a diff
+
+* Template
+
+Have you ever wondered how it works?
+
+- Render on your machine ( no need to install Jinja2 on the remote )
+- Figures out if it needs to do anything, maybe spits out a diff
+- Copies the template to a temporary directory on the remote
+
+* Template
+
+Have you ever wondered how it works?
+
+- Render on your machine ( no need to install Jinja2 on the remote )
+- Figures out if it needs to do anything, maybe spits out a diff
+- Copies the template to a temporary directory on the remote
+- Asks the `copy` module to finish the task
+
+* Template
+
+Have you ever wondered how it works?
+
+    # template the source data locally & get ready to transfer
+    resultant = template.template_from_file(self.runner.basedir, source, inject)
+    ...
+    res = self.runner._execute_module(conn, tmp, 'copy', module_args_tmp)
+    if res.result.get('changed', False):
+        res.diff = dict(before=dest_contents, after=resultant)
+    return res
+
+* Hello World
+
+in action_plugins/hello.py:
+
+    from ansible.runner.return_data import ReturnData
+    
+    class ActionModule(object):
+        def __init__(self, runner):
+            self.runner = runner
+    
+        def run(self, conn, tmp, module_name, module_args, inject, complex_args=None, **kwargs):
+            return ReturnData(conn=conn,
+                              comm_ok=True,
+                              result=dict(failed=False, changed=False, msg="Hello World"))
+
+* Hello World
+
+in action_plugins/hello.py:
+
+    from ansible.runner.return_data import ReturnData
+    
+    class ActionModule(object):
+        def __init__(self, runner):
+            self.runner = runner
+    
+        def run(self, conn, tmp, module_name, module_args, inject, complex_args=None, **kwargs):
+            return ReturnData(conn=conn,
+                              comm_ok=True,
+                              result=dict(failed=False, changed=False, msg="Hello World"))
+
+a file called library/hello
+
+* Hello World
+
+    $ ansible all -i localhost, -m hello
+    
+    localhost | success >> {
+        "changed": false, 
+        "failed": false, 
+        "msg": "Hello World"
+    }
+
+* action_plugins & library?
+
+An action plugin must have a module with the same name
+
+You can divide the work into action plugin/module concerns
+
+* action_plugins & library?
+
+An action plugin must have a module with the same name
+
+You can also divide the work into action plugin/module concerns
+
+`copy` does this.
+
+* Tying Action Plugins Together
+
+    from ansible.runner.action_plugins.synchronize import ActionModule as Sync
+
+* Tying Action Plugins Together
+
+    from ansible.runner.action_plugins.synchronize import ActionModule as Sync
+
+Usage requires some boilerplate:
+
+    sync = Sync(self.runner)
+    sync_result = sync.run(conn,
+                           tmp="/tmp",
+                           module_name="synchronize",
+                           module_args="src=some/relative/path dest=/some/absolute/path",
+                           inject)
+
+* Inject
+
+`inject` is the current set of Ansible variables
+
+    def run(self, conn, tmp, module_name, module_args [...]
+        result = {"failed": False, "changed": False}
+        result.update(inject)
+        return ReturnData(conn=conn,
+                          comm_ok=True,
+                          result=result)
+
+
+    localhost | success >> {
+        "ansible_ssh_user": "hank", 
+        "defaults": {}, 
+        "environment": null, 
+        "failed": false, 
+        "group_names": [], 
+        "groups": {
+            "all": [
+                "localhost"
+    [...]
+
+* My favorite API signature
+
+    from ansible.callbacks import vv, vvv, vvvv
+
+* Logging
+
+    from ansible.callbacks import vv, vvv, vvvv
+    vv('log a message')
+    vvv('log something maybe a bit less important')
+
+* Logging
+
+You can support arbitrarily large numbers of Vs
+
+    from ansible.callbacks import verbose
+    def vvvvv(msg, host=None):
+        return verbose(msg, host=host, caplevel=4)
+
+* Diff mode
+
+Minimum viable action plugin:
+
+    class ActionModule(object):
+        def __init__(self, runner):
+            self.runner = runner
+
+        def run(self, conn, tmp, module_name, module_args, inject, complex_args=None, **kwargs):       
+            return ReturnData(conn=conn,
+                              comm_ok=True,
+                              result=dict(failed=False),
+                              diff=dict(before="foo\nbar",
+                                        after="bar"))
+Gives you
+
+    --- before
+    +++ after
+    @@ -1,2 +1 @@
+    -foo
+     bar
+    ok: [localhost]
+
+
+* Connection Magic
+
+The synchronize action module will actually change your transport in flight:
+
+    # Store original transport and sudo values.
+    self.original_transport = inject.get('ansible_connection', self.runner.transport)          
+    self.original_sudo = self.runner.sudo
+    self.transport_overridden = False
+
+    if inject.get('delegate_to') is None:
+        inject['delegate_to'] = '127.0.0.1'
+        # IF original transport is not local, override transport and disable sudo.             
+        if self.original_transport != 'local':
+            inject['ansible_connection'] = 'local'
+            self.transport_overridden = True
+            self.runner.sudo = False
+
+* Connection Magic
+
+Wait, what?
+
+    $ ansible all -i localhost, -m file -a "path=/var/tmp/x state=present"
+    localhost | FAILED => SSH encountered an unknown error during the connection. We recommend you re-run the command using -vvvv, which will enable SSH debugging output to help diagnose the issue
+    $ ssh localhost
+    ssh: connect to host localhost port 22: Connection refused
+    $ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"
+
+
+* Connection Magic for SSH
+
+Super-duper-bulletproof iptables application
+
+    - apply: src=/etc/iptables/iptables.v4
+    - apply_confirm:
+
+* Connection Magic for SSH
+
+`ControlPersist`
+
+Ansible's speed secret sauce
+
+Turning it off is, broadly, not a great idea
+
+In ansible.cfg:
+
+    ssh_args = -o ControlMaster=auto -o ControlPersist=60s
+
+* Connection Magic for SSH
+
+    class ActionModule(object):
+        def __init__(self, runner):
+            self.runner = runner
+
+            if C.ANSIBLE_SSH_ARGS is not None and len(C.ANSIBLE_SSH_ARGS):
+                # __init__ gets evaluated twice, and the latter in a nested context,
+                # so ignore both None and the empty string
+                self.runner.connector = connection.Connector(self.runner)
+
+            self.old_ssh_args = C.ANSIBLE_SSH_ARGS
+            C.ANSIBLE_SSH_ARGS = ""
+        def __del__(self):
+            C.ANSIBLE_SSH_ARGS = self.old_ssh_args
+        def run(): # ship your module

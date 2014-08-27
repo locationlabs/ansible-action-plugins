@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://127.0.0.1:3999/actionmodules.slide#1 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Advanced Ansible</title>
+    <meta charset="utf-8">
+    <script src="./index_files/slides.js"></script>
+  <meta name="viewport" content="width=1100,height=750"><meta name="apple-mobile-web-app-capable" content="yes"></head>
+
+  <body style="display: none" class="loaded">
+
+    <section class="slides layout-widescreen">
+      
+      <article class="current">
+        <h1>Advanced Ansible</h1>
+        <h3>Action Modules for Fun And Profit</h3>
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Henry Finucane
+  </p>
+  
+
+          </div>
+        
+      </article>
+      
+  
+  
+      <article class="next">
+      
+        <h3></h3>
+        
+<div class="image">
+  <img src="./index_files/ansible_badge.png">
+</div>
+
+  <ul>
+  
+    <li>Chef, Puppet, Salt, competitor</li>
+  
+    <li>Describe state</li>
+  
+    <li>Core in Python, you work in YAML</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="far-next">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Great at lists
+  </p>
+  
+
+  
+  <div class="code"><pre>- apt: pkg=nginx
+
+- file: path=/var/run/lockfile state=absent</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Great at lists
+  </p>
+  
+
+  
+  <div class="code"><pre>- apt: pkg=nginx
+
+- file: path=/var/run/lockfile state=absent</pre></div>
+  
+
+  
+  <p>
+    JSON for scale:
+  </p>
+  
+
+  
+  <div class="code"><pre>[ { "apt": "pkg=nginx" }, { "file": "/var/run/lockfile state=absent" } ]</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Great at <b>data</b>
+  </p>
+  
+
+  
+  <div class="code"><pre>nginx:
+  port: 443
+  ssl:
+    enable: True
+    certificate: /etc/nginx/ssl/hostname.cert</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Python</h3>
+        
+  
+  <div class="code"><pre>if os.path.exists('/run/mysql.pid'):
+    subprocess.call(['mysqladmin', 'shutdown'])</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <div class="code"><pre>- stat: path=/run/mysql.pid
+  register: mysql_pid
+
+- command: mysqladmin shutdown
+  when: mysql_pid|exists</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Python &amp; YAML</h3>
+        
+  
+  <div class="code"><pre>if os.path.exists('/run/mysql.pid'):
+    subprocess.call(['mysqladmin', 'shutdown'])</pre></div>
+  
+
+  
+  <p>
+    vs
+  </p>
+  
+
+  
+  <div class="code"><pre>- stat: path=/run/mysql.pid
+  register: mysql_pid
+
+- command: mysqladmin shutdown
+  when: mysql_pid|exists</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Logic becomes awkward fast
+  </p>
+  
+
+  <ul>
+  
+    <li><code>register:</code> everything</li>
+  
+    <li>No visual grouping</li>
+  
+    <li>Integration-testing only</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Logic is actually pretty inefficient
+  </p>
+  
+
+  
+  <div class="code"><pre>- foo: a=x b=y
+  register: foo_result
+
+- bar: dest=z
+  when: foo_result|changed</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <div class="code"><pre>- foo: a=x b=y
+  register: foo_result
+
+- bar: dest=z
+  when: foo_result|changed</pre></div>
+  
+
+  <ul>
+  
+    <li>Ship foo to the remote host</li>
+  
+    <li>Execute foo</li>
+  
+    <li>Ship results back, parse, evaluate when</li>
+  
+    <li>Conditionally ship bar</li>
+  
+    <li>Conditionally execute bar</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Including a long task many times will scale poorly
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Including a long task many times will scale poorly
+  </p>
+  
+
+  
+  <p>
+    Ansible is pretty fast
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Including a long task many times will scale poorly
+  </p>
+  
+
+  
+  <p>
+    Ansible is pretty fast
+  </p>
+  
+
+  
+  <p>
+    This is a terrible reason to make decisions
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>YAML</h3>
+        
+  
+  <p>
+    Including a long task many times will scale poorly
+  </p>
+  
+
+  
+  <p>
+    Ansible is pretty fast
+  </p>
+  
+
+  
+  <p>
+    This is a terrible reason to make decisions
+  </p>
+  
+
+  
+  <p>
+    Sometimes it has to happen
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h2>Modules</h2>
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h2>Modules Are Great</h2>
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Really easy to write</h3>
+        
+  <ul>
+  
+    <li>A script that returns json</li>
+  
+    <li>Ansible has a bunch of helper libraries</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Modules can't do everything</h3>
+        
+  
+  <p>
+    They run on the host you are deploying to
+  </p>
+  
+
+  
+  <p>
+    You can work around this:
+  </p>
+  
+
+  
+  <div class="code"><pre>- fetch: http://internal_repo/bar.deb
+  local_action: True</pre></div>
+  
+
+  
+  <p>
+    But if you're going to do this a lot...
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Modules can't run on the host and the remote</h3>
+        
+  
+  <p>
+    There's always
+  </p>
+  
+
+  
+  <div class="code"><pre>- complicated_fetch: http://wubwubwub/dubstep
+  register: cf
+
+- synchronize: src={{cf|dest}} dest=/var/tmp/cf
+
+- setup: src=/var/tmp/cf</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h2>Warning: Theorizing ahead</h2>
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>API Matters</h3>
+        
+  <ul>
+  
+    <li>DevOps is not just making sure that someone can push 'play'</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>API Matters</h3>
+        
+  <ul>
+  
+    <li>DevOps is not just making sure that someone can push 'play'</li>
+  
+    <li>LL has a lot of small teams that do slightly different deployments- the nature of our work</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>API Matters</h3>
+        
+  <ul>
+  
+    <li>DevOps is not just making sure that someone can push 'play'</li>
+  
+    <li>LL has a lot of small teams that do slightly different deployments- the nature of our work</li>
+  
+    <li>Tooling for Ansible should be legible &amp; native seeming</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>API Matters</h3>
+        
+  
+  <p>
+    If you have a bad API, eventually, your work will get re-implemented
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>API Matters</h3>
+        
+  
+  <p>
+    If you have a bad API, eventually, your work will get re-implemented
+  </p>
+  
+
+  
+  <p>
+    It's really easy to do simple deployment things wrong
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>API Matters</h3>
+        
+  
+  <p>
+    If you have a bad API, eventually, your work will get re-implemented
+  </p>
+  
+
+  
+  <p>
+    It's really easy to do simple deployment things wrong
+  </p>
+  
+
+  
+  <p>
+    The kind of wrong that works just fine in most circumstances
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3></h3>
+        
+<div class="image">
+  <img src="./index_files/segway.jpg">
+</div>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Action Plugins Are Amazing</h3>
+        
+  
+  <p>
+    Action Plugins can do anything
+  </p>
+  
+
+  <ul>
+  
+    <li>Coalesce multiple modules into a single piece of API</li>
+  
+    <li>Modify transport parameters</li>
+  
+    <li>Change transports</li>
+  
+    <li>Turn off check mode, and run modules[1]</li>
+  
+    <li>Monkeypatch Ansible[2]</li>
+  
+  </ul>
+
+  
+  <p>
+    [1]: Presumably, because you are a monster
+<br>
+
+    [2]: Honestly this is probably a bad idea
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Template</h3>
+        
+  
+  <p>
+    Have you ever wondered how it works?
+  </p>
+  
+
+  <ul>
+  
+    <li>Render on your machine ( no need to install Jinja2 on the remote )</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Template</h3>
+        
+  
+  <p>
+    Have you ever wondered how it works?
+  </p>
+  
+
+  <ul>
+  
+    <li>Render on your machine ( no need to install Jinja2 on the remote )</li>
+  
+    <li>Figures out if it needs to do anything, maybe spits out a diff</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Template</h3>
+        
+  
+  <p>
+    Have you ever wondered how it works?
+  </p>
+  
+
+  <ul>
+  
+    <li>Render on your machine ( no need to install Jinja2 on the remote )</li>
+  
+    <li>Figures out if it needs to do anything, maybe spits out a diff</li>
+  
+    <li>Copies the template to a temporary directory on the remote</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Template</h3>
+        
+  
+  <p>
+    Have you ever wondered how it works?
+  </p>
+  
+
+  <ul>
+  
+    <li>Render on your machine ( no need to install Jinja2 on the remote )</li>
+  
+    <li>Figures out if it needs to do anything, maybe spits out a diff</li>
+  
+    <li>Copies the template to a temporary directory on the remote</li>
+  
+    <li>Asks the <code>copy</code> module to finish the task</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Template</h3>
+        
+  
+  <p>
+    Have you ever wondered how it works?
+  </p>
+  
+
+  
+  <div class="code"><pre># template the source data locally &amp; get ready to transfer
+resultant = template.template_from_file(self.runner.basedir, source, inject)
+...
+res = self.runner._execute_module(conn, tmp, 'copy', module_args_tmp)
+if res.result.get('changed', False):
+    res.diff = dict(before=dest_contents, after=resultant)
+return res</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Hello World</h3>
+        
+  
+  <p>
+    in action_plugins/hello.py:
+  </p>
+  
+
+  
+  <div class="code"><pre>from ansible.runner.return_data import ReturnData
+
+class ActionModule(object):
+    def __init__(self, runner):
+        self.runner = runner
+
+    def run(self, conn, tmp, module_name, module_args, inject, complex_args=None, **kwargs):
+        return ReturnData(conn=conn,
+                          comm_ok=True,
+                          result=dict(failed=False, changed=False, msg="Hello World"))</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Hello World</h3>
+        
+  
+  <p>
+    in action_plugins/hello.py:
+  </p>
+  
+
+  
+  <div class="code"><pre>from ansible.runner.return_data import ReturnData
+
+class ActionModule(object):
+    def __init__(self, runner):
+        self.runner = runner
+
+    def run(self, conn, tmp, module_name, module_args, inject, complex_args=None, **kwargs):
+        return ReturnData(conn=conn,
+                          comm_ok=True,
+                          result=dict(failed=False, changed=False, msg="Hello World"))</pre></div>
+  
+
+  
+  <p>
+    a file called library/hello
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Hello World</h3>
+        
+  
+  <div class="code"><pre>$ ansible all -i localhost, -m hello
+
+localhost | success &gt;&gt; {
+    "changed": false, 
+    "failed": false, 
+    "msg": "Hello World"
+}</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>action_plugins &amp; library?</h3>
+        
+  
+  <p>
+    An action plugin must have a module with the same name
+  </p>
+  
+
+  
+  <p>
+    You can divide the work into action plugin/module concerns
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>action_plugins &amp; library?</h3>
+        
+  
+  <p>
+    An action plugin must have a module with the same name
+  </p>
+  
+
+  
+  <p>
+    You can also divide the work into action plugin/module concerns
+  </p>
+  
+
+  
+  <p>
+    <code>copy</code> does this.
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Tying Action Plugins Together</h3>
+        
+  
+  <div class="code"><pre>from ansible.runner.action_plugins.synchronize import ActionModule as Sync</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Tying Action Plugins Together</h3>
+        
+  
+  <div class="code"><pre>from ansible.runner.action_plugins.synchronize import ActionModule as Sync</pre></div>
+  
+
+  
+  <p>
+    Usage requires some boilerplate:
+  </p>
+  
+
+  
+  <div class="code"><pre>sync = Sync(self.runner)
+sync_result = sync.run(conn,
+                       tmp="/tmp",
+                       module_name="synchronize",
+                       module_args="src=some/relative/path dest=/some/absolute/path",
+                       inject)</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Inject</h3>
+        
+  
+  <p>
+    <code>inject</code> is the current set of Ansible variables
+  </p>
+  
+
+  
+  <div class="code"><pre>def run(self, conn, tmp, module_name, module_args [...]
+    result = {"failed": False, "changed": False}
+    result.update(inject)
+    return ReturnData(conn=conn,
+                      comm_ok=True,
+                      result=result)
+
+
+localhost | success &gt;&gt; {
+    "ansible_ssh_user": "hank", 
+    "defaults": {}, 
+    "environment": null, 
+    "failed": false, 
+    "group_names": [], 
+    "groups": {
+        "all": [
+            "localhost"
+[...]</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>My favorite API signature</h3>
+        
+  
+  <div class="code"><pre>from ansible.callbacks import vv, vvv, vvvv</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Logging</h3>
+        
+  
+  <div class="code"><pre>from ansible.callbacks import vv, vvv, vvvv
+vv('log a message')
+vvv('log something maybe a bit less important')</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Logging</h3>
+        
+  
+  <p>
+    You can support arbitrarily large numbers of Vs
+  </p>
+  
+
+  
+  <div class="code"><pre>from ansible.callbacks import verbose
+def vvvvv(msg, host=None):
+    return verbose(msg, host=host, caplevel=4)</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Diff mode</h3>
+        
+  
+  <p>
+    Minimum viable action plugin:
+  </p>
+  
+
+  
+  <div class="code"><pre>class ActionModule(object):
+    def __init__(self, runner):
+        self.runner = runner
+
+    def run(self, conn, tmp, module_name, module_args, inject, complex_args=None, **kwargs):       
+        return ReturnData(conn=conn,
+                          comm_ok=True,
+                          result=dict(failed=False),
+                          diff=dict(before="foo\nbar",
+                                    after="bar"))</pre></div>
+  
+
+  
+  <p>
+    Gives you
+  </p>
+  
+
+  
+  <div class="code"><pre>--- before
++++ after
+@@ -1,2 +1 @@
+-foo
+ bar
+ok: [localhost]</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Connection Magic</h3>
+        
+  
+  <p>
+    The synchronize action module will actually change your transport in flight:
+  </p>
+  
+
+  
+  <div class="code"><pre># Store original transport and sudo values.
+self.original_transport = inject.get('ansible_connection', self.runner.transport)          
+self.original_sudo = self.runner.sudo
+self.transport_overridden = False
+
+if inject.get('delegate_to') is None:
+    inject['delegate_to'] = '127.0.0.1'
+    # IF original transport is not local, override transport and disable sudo.             
+    if self.original_transport != 'local':
+        inject['ansible_connection'] = 'local'
+        self.transport_overridden = True
+        self.runner.sudo = False</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Connection Magic</h3>
+        
+  
+  <p>
+    Wait, what?
+  </p>
+  
+
+  
+  <div class="code"><pre>$ ansible all -i localhost, -m file -a "path=/var/tmp/x state=present"
+localhost | FAILED =&gt; SSH encountered an unknown error during the connection. We recommend you re-run the command using -vvvv, which will enable SSH debugging output to help diagnose the issue
+$ ssh localhost
+ssh: connect to host localhost port 22: Connection refused
+$ ansible all -i localhost, -c local -m file -a "path=/var/tmp/x state=present"</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Connection Magic for SSH</h3>
+        
+  
+  <p>
+    Super-duper-bulletproof iptables application
+  </p>
+  
+
+  
+  <div class="code"><pre>- apply: /etc/iptables/iptables.v4
+- apply_confirm:</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Connection Magic for SSH</h3>
+        
+  
+  <p>
+    <code>ControlPersist</code>
+  </p>
+  
+
+  
+  <p>
+    Ansible's speed secret sauce
+  </p>
+  
+
+  
+  <p>
+    Turning it off is, broadly, not a great idea
+  </p>
+  
+
+  
+  <p>
+    In ansible.cfg:
+  </p>
+  
+
+  
+  <div class="code"><pre>ssh_args = -o ControlMaster=auto -o ControlPersist=60s</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Connection Magic for SSH</h3>
+        
+  
+  <div class="code"><pre>class ActionModule(object):
+    def __init__(self, runner):
+        self.runner = runner
+
+        if C.ANSIBLE_SSH_ARGS is not None and len(C.ANSIBLE_SSH_ARGS):
+            # __init__ gets evaluated twice, and the latter in a nested context,
+            # so ignore both None and the empty string
+            self.runner.connector = connection.Connector(self.runner)
+
+        self.old_ssh_args = C.ANSIBLE_SSH_ARGS
+        C.ANSIBLE_SSH_ARGS = ""
+    def __del__(self):
+        C.ANSIBLE_SSH_ARGS = self.old_ssh_args
+    def run(): # ship your module</pre></div>
+  
+
+      
+      </article>
+  
+  
+
+      <article class="">
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Henry Finucane
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+  <script src="./index_files/play.js"></script>
+  
+
+<div class="slide-area" id="prev-slide-area"></div><div class="slide-area" id="next-slide-area"></div></section><link rel="stylesheet" type="text/css" href="./index_files/css"><link rel="stylesheet" type="text/css" href="./index_files/styles.css"><link rel="stylesheet" type="text/css" media="print" href="./index_files/print.css"></body></html>
