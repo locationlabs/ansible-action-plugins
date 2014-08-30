@@ -1,0 +1,3 @@
+#!/usr/bin/python
+
+print r'{"failed": false, "changed": true, "before": "fee\nfo\nfum\n", "after": "fee\nfi\nfum\n"}'

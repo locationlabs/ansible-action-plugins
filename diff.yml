@@ -1,0 +1,8 @@
+---
+
+# Run this to see diffs in action
+
+- hosts: all
+  tasks:
+  - sillydiff:
+  - pipediff:
