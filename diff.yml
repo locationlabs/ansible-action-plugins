@@ -3,6 +3,8 @@
 # Run this to see diffs in action
 
 - hosts: all
+  gather_facts: no
   tasks:
+  - run_once:
   - sillydiff:
   - pipediff:
